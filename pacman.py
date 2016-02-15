@@ -105,6 +105,24 @@ class Pacman(GameObject):
 
         self.set_coord(self.x, self.y)
 
+class Map:
+        def __init__(self, txt):
+                self.map = [ [list()]*x for i in range(y) ]
+
+        def get(self, x, y):
+                return self.map[x][y]
+
+        def moveTo(self, obj, new_x, new_y):
+                point = self.map[obj.x][obj.y]
+                if obj in point:
+                        point.remove(obj)
+                        self.map[new_x][new_y].add(obj)
+                        obj.set_ccord(x,y)
+                        return true
+                return false
+
+        def drawAll(self):
+            a=1
 
 def process_events(events, packman):
     for event in events:
@@ -129,6 +147,7 @@ if __name__ == '__main__':
     map_size = 16
     ghost = Ghost(0, 0, tile_size, map_size)
     pacman = Pacman(5, 5, tile_size, map_size)
+    map = Map('./map.txt')
     background = pygame.image.load("./resources/background.png")
     screen = pygame.display.get_surface()
 
