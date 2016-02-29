@@ -77,11 +77,26 @@ class Ghost(GameObject):
                 self.direction = random.randint(1, 4)
         self.set_coord(self.x, self.y)
 
-class Wall (GameObject):
-    def __init__(self):
-        GameObject.__init__(self,'.recources/wall_st.png', x, y)
+class Wall(GameObject):
+    def __init__(self, x, y, tile_size, map_size):
+        GameObject.__init__(self, './resources/wall_st.png', x, y, tile_size, map_size)
+        self.direction = 0
+        self.velocity = 0
+
+class Dot(GameObject):
+
+    def __init__(self, x, y, tile_size, map_size):
+        GameObject.__init__(self, './resources/banana.png', x, y, tile_size, map_size)
+        self.direction = 0
+        self.velocity = 0
+        self.eaten = False
+
     def game_tick(self):
-        super(Wall,self).game_tick()
+        super(Dot, self).game_tick()
+        if int(pacman.x) == self.x and int(pacman.y) == self.y:
+            self.eaten = True
+            self.image = None
+
 
 
 class Pacman(GameObject):
@@ -112,18 +127,16 @@ class Pacman(GameObject):
         self.set_coord(self.x, self.y)
 
 class Map:
-        def __init__(self, name):
-            self.map = []
-            file=open(name, 'r')
-            txt=file.readlines()
-            file.close()
-            for y in range(len(txt)):
-                self.map.append([])
-                for x in range(len(txt[y])):
-                    if 'X' in txt[x][y]: #[y][x]
-                        self.map[-1].append(Wall(x,y))
-                    elif '*' in txt[x][y]:
-                        self.map[-1].append(Dot(x,y))
+        def __init__(self, h):
+            self.map = [None for i in range(h)]
+            txt = open('./map.txt', 'r')
+            for x in range(h):
+                a = txt.readline()
+                a = a.rstrip()
+                self.map[x] = list(a.split('.'))
+
+        def get(self, x, y):
+                return self.map[x][y]
 
 
 
@@ -150,14 +163,12 @@ def process_events(events, packman):
             elif event.key == K_SPACE:
                 packman.direction = 0
 
-global map
 if __name__ == '__main__':
     init_window()
     tile_size = 32
     map_size = 16
     ghost = Ghost(0, 0, tile_size, map_size)
     pacman = Pacman(5, 5, tile_size, map_size)
-    map = Map('./map.txt')
     background = pygame.image.load("./resources/background.png")
     screen = pygame.display.get_surface()
 
@@ -169,5 +180,4 @@ if __name__ == '__main__':
         draw_background(screen, background)
         pacman.draw(screen)
         ghost.draw(screen)
-        map.draw(screen)
         pygame.display.update()
