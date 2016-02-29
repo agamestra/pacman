@@ -48,7 +48,7 @@ class Ghost(GameObject):
     def __init__(self, x, y, tile_size, map_size):
         GameObject.__init__(self, './resources/ghost.png', x, y, tile_size, map_size)
         self.direction = 0
-        self.velocity = 4.0 / 10.0
+        self.velocity = 2.0 / 10.0
 
     def game_tick(self):
         super(Ghost, self).game_tick()
@@ -76,6 +76,12 @@ class Ghost(GameObject):
                 self.y = 0
                 self.direction = random.randint(1, 4)
         self.set_coord(self.x, self.y)
+
+class Wall (GameObject):
+    def __init__(self):
+        GameObject.__init__(self,'.recources/wall_st.png', x, y)
+    def game_tick(self):
+        super(Wall,self).game_tick()
 
 
 class Pacman(GameObject):
@@ -106,23 +112,27 @@ class Pacman(GameObject):
         self.set_coord(self.x, self.y)
 
 class Map:
-        def __init__(self, txt):
-                self.map = [ [list()]*x for i in range(y) ]
+        def __init__(self, name):
+            self.map = []
+            file=open(name, 'r')
+            txt=file.readlines()
+            file.close()
+            for y in range(len(txt)):
+                self.map.append([])
+                for x in range(len(txt[y])):
+                    if 'X' in txt[x][y]: #[y][x]
+                        self.map[-1].append(Wall(x,y))
+                    elif '*' in txt[x][y]:
+                        self.map[-1].append(Dot(x,y))
 
-        def get(self, x, y):
-                return self.map[x][y]
 
-        def moveTo(self, obj, new_x, new_y):
-                point = self.map[obj.x][obj.y]
-                if obj in point:
-                        point.remove(obj)
-                        self.map[new_x][new_y].add(obj)
-                        obj.set_ccord(x,y)
-                        return true
-                return false
 
-        def drawAll(self):
-            a=1
+
+        def draw(self,screen):
+            for x in range (len(self.map)):
+                for y in range (len(self.map[y])):
+                    if self.map[x][y]:
+                        self.map[x][y].draw(screen)
 
 def process_events(events, packman):
     for event in events:
@@ -140,7 +150,7 @@ def process_events(events, packman):
             elif event.key == K_SPACE:
                 packman.direction = 0
 
-
+global map
 if __name__ == '__main__':
     init_window()
     tile_size = 32
@@ -159,4 +169,5 @@ if __name__ == '__main__':
         draw_background(screen, background)
         pacman.draw(screen)
         ghost.draw(screen)
+        map.draw(screen)
         pygame.display.update()
