@@ -127,16 +127,18 @@ class Pacman(GameObject):
         self.set_coord(self.x, self.y)
 
 class Map:
-        def __init__(self, h):
-            self.map = [None for i in range(h)]
-            txt = open('./map.txt', 'r')
-            for x in range(h):
-                a = txt.readline()
-                a = a.rstrip()
-                self.map[x] = list(a.split('.'))
-
-        def get(self, x, y):
-                return self.map[x][y]
+        def __init__(self, name):
+            self.map = []
+            file=open(name, 'r')
+            txt=file.readlines()
+            file.close()
+            for y in range(len(txt)):
+                self.map.append([])
+                for x in range(len(txt[y])):
+                    if 'X' in txt[x][y]: #[y][x]
+                        self.map[-1].append(Wall(x,y))
+                    elif '*' in txt[x][y]:
+                        self.map[-1].append(Dot(x,y))
 
 
 
@@ -163,12 +165,14 @@ def process_events(events, packman):
             elif event.key == K_SPACE:
                 packman.direction = 0
 
+global map
 if __name__ == '__main__':
     init_window()
     tile_size = 32
     map_size = 16
     ghost = Ghost(0, 0, tile_size, map_size)
     pacman = Pacman(5, 5, tile_size, map_size)
+    map = Map('./map.txt')
     background = pygame.image.load("./resources/background.png")
     screen = pygame.display.get_surface()
 
@@ -180,4 +184,5 @@ if __name__ == '__main__':
         draw_background(screen, background)
         pacman.draw(screen)
         ghost.draw(screen)
+        map.draw(screen)
         pygame.display.update()
